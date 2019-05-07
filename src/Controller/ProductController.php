@@ -3,18 +3,24 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Repository\ProductRepository;
+use App\Representation\Products;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
-use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ProductController extends AbstractController
 {
+    private $repository;
+
+    public function __construct(ProductRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
     /**
      * @Rest\Get(
      *     path="/product/{id}",
@@ -35,8 +41,6 @@ class ProductController extends AbstractController
      * )
      * @Rest\View(StatusCode=201)
      * @ParamConverter("product", converter="fos_rest.request_body")
-     * @param SerializerInterface $serializer
-     * @param Request $request
      */
     public function create(Product $product)
     {
@@ -53,18 +57,46 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/products", name="product.list", methods={"GET"})
-     * @param SerializerInterface $serializer
-     * @return Response
+     * @Rest\Get(
+     *     path="products",
+     *     name="product.list"
+     * )
+     *
+     * @Rest\QueryParam(
+     *     name="keyword",
+     *     requirements="[a-zA-Z0-9]",
+     *     nullable=true,
+     *     description="Keyword to search for"
+     * )
+     * @Rest\QueryParam(
+     *     name="order",
+     *     requirements="asc|desc",
+     *     default="asc",
+     *     description="Sort order"
+     * )
+     * @Rest\QueryParam(
+     *     name="limit",
+     *     requirements="\d+",
+     *     default="15",
+     *     description="Max number of product per page"
+     * )
+     * @Rest\QueryParam(
+     *     name="offset",
+     *     requirements="\d+",
+     *     default="0",
+     *     description="The pagination offset"
+     * )
+     * @Rest\View()
      */
-    public function listAction(SerializerInterface $serializer)
+    public function listAction(ParamFetcherInterface $fetcher)
     {
-        $products = $this->getDoctrine()->getRepository(Product::class)->findAll();
-        $data = $serializer->serialize($products, 'json');
+        $pager = $this->repository->search(
+            $fetcher->get('keyword'),
+            $fetcher->get('order'),
+            $fetcher->get('limit'),
+            $fetcher->get('offset')
+        );
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return new Products($pager);
     }
 }

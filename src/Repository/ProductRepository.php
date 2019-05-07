@@ -14,9 +14,31 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class ProductRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    private $repository;
+
+    public function __construct(RegistryInterface $registry, AbstractRepository $repository)
     {
         parent::__construct($registry, Product::class);
+        $this->repository = $repository;
+    }
+
+    public function search($term, $order = 'asc', $limit = 20, $offset = 0)
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('p')
+            ->select('p')
+            ->orderBy('p.name', $order)
+            ;
+
+        if ($term)
+        {
+            $queryBuilder
+                ->where('a.title LIKE ?1')
+                ->setParameter(1, '%'.$term.'%')
+                ;
+        }
+
+        return $this->repository->paginate($queryBuilder, $limit, $offset);
     }
 
     // /**
