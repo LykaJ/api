@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,16 +13,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProductController extends AbstractController
 {
     /**
-     * @Route("/product/{id}", name="product.show")
+     * @Rest\Get(
+     *     path="/product/{id}",
+     *     name="product.show",
+     *     requirements={"id"="\d+"}
+     * )
+     * @Rest\View()
      */
-    public function show(SerializerInterface $serializer, Product $product)
+    public function show(Product $product)
     {
-        $data = $serializer->serialize($product, 'json');
-
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return $product;
     }
 
     /**
