@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\View\View;
 use JMS\Serializer\SerializerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ProductController extends AbstractController
 {
@@ -26,20 +29,27 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/product", name="product.create", methods={"POST"})
+     * @Rest\Post(
+     *     path="product",
+     *     name="product.create"
+     * )
+     * @Rest\View(StatusCode=201)
+     * @ParamConverter("product", converter="fos_rest.request_body")
      * @param SerializerInterface $serializer
      * @param Request $request
      */
-    public function create(SerializerInterface $serializer, Request $request)
+    public function create(Product $product)
     {
-        $data = $request->getContent();
-        $product = $serializer->deserialize($data, Product::class, 'json');
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($product);
+        $manager->flush();
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($product);
-        $entityManager->flush();
+        $view = View::create();
+        $view->setData($product)
+            ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
+        ;
 
-        return new Response('', Response::HTTP_CREATED);
+        return $view;
     }
 
     /**
