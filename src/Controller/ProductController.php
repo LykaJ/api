@@ -3,14 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Exception\ResourceValidationException;
 use App\Repository\ProductRepository;
 use App\Representation\Products;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use http\Env\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class ProductController extends AbstractController
 {
@@ -35,15 +38,30 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Rest\Post(
+     *  @Rest\Post(
      *     path="product",
      *     name="product.create"
      * )
      * @Rest\View(StatusCode=201)
      * @ParamConverter("product", converter="fos_rest.request_body")
+     *
+     * @param Product $product
+     * @param ConstraintViolationList $violations
+     * @return View
+     * @throws ResourceValidationException
      */
-    public function create(Product $product)
+    public function create(Product $product, ConstraintViolationList $violations)
     {
+        if (count($violations))
+        {
+            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            foreach ($violations as $violation) {
+                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+
+            throw new ResourceValidationException($message);
+        }
+
         $manager = $this->getDoctrine()->getManager();
         $manager->persist($product);
         $manager->flush();

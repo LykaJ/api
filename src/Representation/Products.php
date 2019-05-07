@@ -8,7 +8,7 @@ use JMS\Serializer\Annotation\Type;
 class Products
 {
     /**
-     * @Type("array<AppBundle\Entity\Product>")
+     * @Type("array<App\Entity\Product>")
      */
     public $data;
 

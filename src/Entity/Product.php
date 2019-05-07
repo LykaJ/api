@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
@@ -16,42 +17,55 @@ class Product
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $software;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $dimension;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $weight;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $screen;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $color;
 
