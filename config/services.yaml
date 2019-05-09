@@ -29,3 +29,21 @@ services:
 
     App\Repository\AbstractRepository:
         autowire: true
+
+
+    App\Normalizer\NotFoundHttpExceptionNormalizer:
+        arguments:
+            - { type: 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException' }
+        tags:
+            - { name: app.normalizer }
+
+    app.normalizer.resource_validation_exception:
+        alias: App\Normalizer\NotFoundHttpExceptionNormalizer
+        public: true
+
+    app.exception_subscriber:
+        class: App\EventSubscriber\ExceptionListener
+        arguments:
+            - '@jms_serializer'
+        tags:
+            - { name: kernel.event_subscriber }

@@ -17,7 +17,7 @@ fos_rest:
     enabled: true
     exception_controller: 'fos_rest.exception.controller:showAction'
     codes:
-      { App\Exception\ResourceValidationException: 400, \Exception: 500 }
+      { App\Exception\ResourceValidationException: 400 }
 
 
 #    param_fetcher_listener:  true
