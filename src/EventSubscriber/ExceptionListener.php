@@ -2,6 +2,7 @@
 
 namespace App\EventSubscriber;
 
+use App\Exception\ResourceValidationException;
 use App\Normalizer\NormalizerInterface;
 
 use JMS\Serializer\SerializerInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class ExceptionListener implements EventSubscriberInterface
 {
@@ -52,6 +54,23 @@ class ExceptionListener implements EventSubscriberInterface
     public function addNormalizer(NormalizerInterface $normalizer)
     {
         $this->normalizers[] = $normalizer;
+    }
+
+    /**
+     * @param ConstraintViolationList $violations
+     * @throws ResourceValidationException
+     */
+    public function getViolations(ConstraintViolationList $violations)
+    {
+        if (count($violations))
+        {
+            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            foreach ($violations as $violation) {
+                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+
+            throw new ResourceValidationException($message);
+        }
     }
 
     public static function getSubscribedEvents()

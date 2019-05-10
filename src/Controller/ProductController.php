@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\EventSubscriber\ExceptionListener;
 use App\Exception\ResourceValidationException;
 use App\Repository\ProductRepository;
 use App\Representation\Products;
@@ -49,17 +50,9 @@ class ProductController extends AbstractController
      * @return View
      * @throws ResourceValidationException
      */
-    public function create(Product $product, ConstraintViolationList $violations)
+    public function create(Product $product, ConstraintViolationList $violations, ExceptionListener $listener)
     {
-        if (count($violations))
-        {
-            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
-            foreach ($violations as $violation) {
-                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
-            }
-
-            throw new ResourceValidationException($message);
-        }
+        $listener->getViolations($violations);
 
         $manager = $this->getDoctrine()->getManager();
         $manager->persist($product);
@@ -69,6 +62,35 @@ class ProductController extends AbstractController
         $view->setData($product)
             ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
         ;
+
+        return $view;
+    }
+
+    /**
+     * @Rest\Put(
+     *     path="product/edit/{id}",
+     *     name="product.edit"
+     * )
+     *
+     * @Rest\View(StatusCode=200)
+     *
+     * @ParamConverter("product", converter="fos_rest.request_body")
+     * @param Product $product
+     * @param ConstraintViolationList $violations
+     * @return View
+     * @throws ResourceValidationException
+     */
+    public function edit(Product $product, ExceptionListener $listener, ConstraintViolationList $violations)
+    {
+       $listener->getViolations($violations);
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->flush();
+
+        $view = View::create();
+        $view->setData($product)
+            ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
+            ;
 
         return $view;
     }
