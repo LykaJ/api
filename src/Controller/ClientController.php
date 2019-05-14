@@ -2,11 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\Product;
+use App\Entity\Client;
 use App\EventSubscriber\ExceptionListener;
-use App\Exception\ResourceValidationException;
-use App\Repository\ProductRepository;
-use App\Representation\Products;
+use App\Repository\ClientRepository;
+use App\Representation\Clients;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
@@ -15,61 +14,67 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class ProductController extends AbstractController
+class ClientController extends AbstractController
 {
     private $repository;
 
-    public function __construct(ProductRepository $repository)
+    public function __construct(ClientRepository $repository)
     {
         $this->repository = $repository;
     }
 
     /**
      * @Rest\Get(
-     *     path="/product/{id}",
-     *     name="product.show",
+     *     path="client/{id}",
+     *     name="client.show",
      *     requirements={"id"="\d+"}
      * )
+     *
      * @Rest\View()
+     *
+     * @param Client $client
+     * @return Client
      */
-    public function show(Product $product)
+    public function show(Client $client)
     {
-        return $product;
+        return $client;
     }
 
     /**
      * @Rest\Post(
-     *     path="product",
-     *     name="product.create"
+     *     path="client",
+     *     name="client.create"
      * )
      * @Rest\View(StatusCode=201)
-     * @ParamConverter("product", converter="fos_rest.request_body")
+     * @ParamConverter("client", converter="fos_rest.request_body")
      *
-     * @param Product $product
+     * @param Client $client
      * @param ConstraintViolationList $violations
+     * @param ExceptionListener $listener
      * @return View
-     * @throws ResourceValidationException
+     * @throws \App\Exception\ResourceValidationException
      */
-    public function create(Product $product, ConstraintViolationList $violations, ExceptionListener $listener)
+    public function create(Client $client, ConstraintViolationList $violations, ExceptionListener $listener)
     {
         $listener->getViolations($violations);
 
         $manager = $this->getDoctrine()->getManager();
-        $manager->persist($product);
+        $manager->persist($client);
         $manager->flush();
 
         $view = View::create();
-        $view->setData($product)
-            ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
+        $view->setData($client)
+            ->setLocation($this->generateUrl('client.show', ['id' => $client->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
         ;
 
         return $view;
     }
 
     /**
+     * /**
      * @Rest\Get(
-     *     path="products",
-     *     name="product.list"
+     *     path="clients",
+     *     name="client.list"
      * )
      *
      * @Rest\QueryParam(
@@ -87,7 +92,7 @@ class ProductController extends AbstractController
      * @Rest\QueryParam(
      *     name="limit",
      *     requirements="\d+",
-     *     default="15",
+     *     default="5",
      *     description="Max number of product per page"
      * )
      * @Rest\QueryParam(
@@ -107,6 +112,7 @@ class ProductController extends AbstractController
             $fetcher->get('offset')
         );
 
-        return new Products($pager);
+        return new Clients($pager);
+
     }
 }
