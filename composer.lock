@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f37f8206df473ce3f1424db839d84fb",
+    "content-hash": "ac44fda745b8f3373a9c60bd6d8c724a",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -3416,6 +3416,57 @@
             "time": "2019-04-06T13:51:08+00:00"
         },
         {
+            "name": "symfony/expression-language",
+            "version": "v4.2.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/expression-language.git",
+                "reference": "a69b153996a13ffdb05395e8724c7217a8448e9e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/expression-language/zipball/a69b153996a13ffdb05395e8724c7217a8448e9e",
+                "reference": "a69b153996a13ffdb05395e8724c7217a8448e9e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/cache": "~3.4|~4.0",
+                "symfony/contracts": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\ExpressionLanguage\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony ExpressionLanguage Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-01-16T20:31:39+00:00"
+        },
+        {
             "name": "symfony/filesystem",
             "version": "v4.2.8",
             "source": {
@@ -4887,6 +4938,129 @@
                 "paging"
             ],
             "time": "2019-02-14T08:42:52+00:00"
+        },
+        {
+            "name": "willdurand/hateoas",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/willdurand/Hateoas.git",
+                "reference": "e9777ddde4db8cc2bec17b02b35488756315ccdb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/willdurand/Hateoas/zipball/e9777ddde4db8cc2bec17b02b35488756315ccdb",
+                "reference": "e9777ddde4db8cc2bec17b02b35488756315ccdb",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/annotations": "~1.0",
+                "jms/metadata": "^2.0",
+                "jms/serializer": "^2.1|^3.0",
+                "php": "^7.2",
+                "symfony/expression-language": "~3.0 || ~4.0"
+            },
+            "require-dev": {
+                "doctrine/coding-standard": "^5.0",
+                "doctrine/persistence": "^1.0",
+                "pagerfanta/pagerfanta": "~1.0",
+                "phpunit/phpunit": "^7",
+                "symfony/dependency-injection": "~3.0 || ~4.0",
+                "symfony/routing": "~3.0 || ~4.0",
+                "symfony/yaml": "~3.0 || ~4.0",
+                "twig/twig": "^1.12 || ^2.0"
+            },
+            "suggest": {
+                "symfony/routing": "To use the SymfonyRouteFactory.",
+                "symfony/yaml": "To use yaml based configuration.",
+                "twig/twig": "To use the Twig extensions."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hateoas\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrien Brault",
+                    "email": "adrien.brault@gmail.com"
+                },
+                {
+                    "name": "Asmir Mustafic",
+                    "email": "goetas@gmail.com"
+                },
+                {
+                    "name": "William Durand",
+                    "email": "william.durand1@gmail.com"
+                }
+            ],
+            "description": "A PHP library to support implementing representations for HATEOAS REST web services",
+            "time": "2019-04-23T07:28:26+00:00"
+        },
+        {
+            "name": "willdurand/hateoas-bundle",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/willdurand/BazingaHateoasBundle.git",
+                "reference": "c2dccbdad5f3f88d405fdc1729705cba904a5888"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/willdurand/BazingaHateoasBundle/zipball/c2dccbdad5f3f88d405fdc1729705cba904a5888",
+                "reference": "c2dccbdad5f3f88d405fdc1729705cba904a5888",
+                "shasum": ""
+            },
+            "require": {
+                "jms/serializer-bundle": "^3.1",
+                "php": "^7.2",
+                "symfony/expression-language": "~3.0 || ~4.0",
+                "symfony/framework-bundle": "~3.0 || ~4.0",
+                "willdurand/hateoas": "^3.0"
+            },
+            "require-dev": {
+                "doctrine/coding-standard": "^5.0",
+                "phpunit/phpunit": "^7",
+                "symfony/stopwatch": "~3.0 || ~4.0",
+                "twig/twig": "~1.12|~2.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bazinga\\Bundle\\HateoasBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "William Durand",
+                    "email": "william.durand1@gmail.com"
+                }
+            ],
+            "description": "Integration of Hateoas into Symfony2.",
+            "keywords": [
+                "HATEOAS",
+                "rest"
+            ],
+            "time": "2019-02-17T08:11:19+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",

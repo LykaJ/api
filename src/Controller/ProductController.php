@@ -67,35 +67,6 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Rest\Put(
-     *     path="product/edit/{id}",
-     *     name="product.edit"
-     * )
-     *
-     * @Rest\View(StatusCode=200)
-     *
-     * @ParamConverter("product", converter="fos_rest.request_body")
-     * @param Product $product
-     * @param ConstraintViolationList $violations
-     * @return View
-     * @throws ResourceValidationException
-     */
-    public function edit(Product $product, ExceptionListener $listener, ConstraintViolationList $violations)
-    {
-       $listener->getViolations($violations);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->flush();
-
-        $view = View::create();
-        $view->setData($product)
-            ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
-            ;
-
-        return $view;
-    }
-
-    /**
      * @Rest\Get(
      *     path="products",
      *     name="product.list"

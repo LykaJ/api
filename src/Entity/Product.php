@@ -3,12 +3,30 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "product.show",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute= true
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "create",
+ *      href = @Hateoas\Route(
+ *          "product.create",
+ *          absolute= true
+ *      )
+ * )
  */
 class Product
 {
