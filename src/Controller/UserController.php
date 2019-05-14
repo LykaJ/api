@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\Client;
+use App\Entity\User;
 use App\EventSubscriber\ExceptionListener;
-use App\Repository\ClientRepository;
-use App\Representation\Clients;
+use App\Pager\Pager;
+use App\Repository\UserRepository;
+use App\Representation\Users;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
@@ -14,47 +15,47 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class ClientController extends AbstractController
+class UserController extends AbstractController
 {
     private $repository;
 
-    public function __construct(ClientRepository $repository)
+    public function __construct(UserRepository $repository)
     {
         $this->repository = $repository;
     }
 
     /**
      * @Rest\Get(
-     *     path="client/{id}",
-     *     name="client.show",
+     *     path="user/{id}",
+     *     name="user.show",
      *     requirements={"id"="\d+"}
      * )
      *
      * @Rest\View()
      *
-     * @param Client $client
-     * @return Client
+     * @param User $client
+     * @return User
      */
-    public function show(Client $client)
+    public function show(User $client)
     {
         return $client;
     }
 
     /**
      * @Rest\Post(
-     *     path="client",
-     *     name="client.create"
+     *     path="user",
+     *     name="user.create"
      * )
      * @Rest\View(StatusCode=201)
      * @ParamConverter("client", converter="fos_rest.request_body")
      *
-     * @param Client $client
+     * @param User $client
      * @param ConstraintViolationList $violations
      * @param ExceptionListener $listener
      * @return View
      * @throws \App\Exception\ResourceValidationException
      */
-    public function create(Client $client, ConstraintViolationList $violations, ExceptionListener $listener)
+    public function create(User $client, ConstraintViolationList $violations, ExceptionListener $listener)
     {
         $listener->getViolations($violations);
 
@@ -64,7 +65,7 @@ class ClientController extends AbstractController
 
         $view = View::create();
         $view->setData($client)
-            ->setLocation($this->generateUrl('client.show', ['id' => $client->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
+            ->setLocation($this->generateUrl('user.show', ['id' => $client->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
         ;
 
         return $view;
@@ -73,8 +74,8 @@ class ClientController extends AbstractController
     /**
      * /**
      * @Rest\Get(
-     *     path="clients",
-     *     name="client.list"
+     *     path="users",
+     *     name="user.list"
      * )
      *
      * @Rest\QueryParam(
@@ -112,7 +113,7 @@ class ClientController extends AbstractController
             $fetcher->get('offset')
         );
 
-        return new Clients($pager);
+        return new Users($pager);
 
     }
 }

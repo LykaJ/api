@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Alicia
- * Date: 2019-05-14
- * Time: 11:32
- */
 
 namespace App\Representation;
 
@@ -12,10 +6,10 @@ namespace App\Representation;
 use JMS\Serializer\Annotation\Type;
 use Pagerfanta\Pagerfanta;
 
-class Clients
+class Users
 {
     /**
-     * @Type("array<App\Entity\Client>")
+     * @Type("array<App\Entity\User>")
      */
     public $data;
 
