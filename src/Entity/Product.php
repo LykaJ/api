@@ -3,11 +3,30 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "product.show",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute= true
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "create",
+ *      href = @Hateoas\Route(
+ *          "product.create",
+ *          absolute= true
+ *      )
+ * )
  */
 class Product
 {
@@ -15,42 +34,56 @@ class Product
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     *
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $software;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $dimension;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $weight;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $screen;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Serializer\Expose()
+     *
+     * @Assert\NotBlank
      */
     private $color;
 
