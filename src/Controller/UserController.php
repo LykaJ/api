@@ -12,7 +12,12 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 class UserController extends AbstractController
@@ -39,36 +44,6 @@ class UserController extends AbstractController
     public function show(User $client)
     {
         return $client;
-    }
-
-    /**
-     * @Rest\Post(
-     *     path="user",
-     *     name="user.create"
-     * )
-     * @Rest\View(StatusCode=201)
-     * @ParamConverter("client", converter="fos_rest.request_body")
-     *
-     * @param User $client
-     * @param ConstraintViolationList $violations
-     * @param ExceptionListener $listener
-     * @return View
-     * @throws \App\Exception\ResourceValidationException
-     */
-    public function create(User $client, ConstraintViolationList $violations, ExceptionListener $listener)
-    {
-        $listener->getViolations($violations);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($client);
-        $manager->flush();
-
-        $view = View::create();
-        $view->setData($client)
-            ->setLocation($this->generateUrl('user.show', ['id' => $client->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
-        ;
-
-        return $view;
     }
 
     /**
@@ -114,6 +89,5 @@ class UserController extends AbstractController
         );
 
         return new Users($pager);
-
     }
 }
