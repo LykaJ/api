@@ -3,9 +3,11 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
+ * @Serializer\ExclusionPolicy("ALL")
  */
 class Customer
 {
@@ -18,36 +20,43 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
      */
     private $address;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
      */
     private $city;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
      */
     private $postal;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
      */
     private $phone;
 

@@ -2,38 +2,36 @@
 
 namespace App\Controller;
 
-use App\Entity\Customer;
-use App\Entity\User;
 use App\Repository\CustomerRepository;
+use App\Repository\UserRepository;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\View\View;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\Request;
 
 class CustomerController extends AbstractController
 {
     private $repository;
+    private $userRepo;
 
-    public function __construct(CustomerRepository $repository)
+    public function __construct(CustomerRepository $repository, UserRepository $userRepo)
     {
         $this->repository = $repository;
+        $this->userRepo = $userRepo;
     }
 
     /**
      * @Rest\Get(
-     *     path="customers",
-     *     name="customer.list"
+     *     path="api/customers/{id}",
+     *     name="customers"
      * )
      *
-     * @Rest\View(StatusCode=200)
+     * @Rest\View(statusCode=200)
      *
-     * @param User $user
-     * @return mixed
+     * @return \App\Entity\Customer[]
      */
-    public function listAction(Security $security)
+    public function listAction(Request $request)
     {
-        $user = $security->getUser();
+        $user = $this->userRepo->findOneBy(['id' => $request->attributes->get('id')]);
         $customers = $this->repository->findByUser($user);
 
         return $customers;
