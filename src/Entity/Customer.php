@@ -3,11 +3,21 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
  * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href=@Hateoas\Route(
+ *     "customers",
+ *     parameters={"id" = "expr(object.getUser().getId())"},
+ *     absolute=true
+ *     )
+ * )
  */
 class Customer
 {

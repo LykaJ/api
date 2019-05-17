@@ -7,6 +7,8 @@ use App\Repository\UserRepository;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Security;
 
 class CustomerController extends AbstractController
 {
@@ -29,7 +31,7 @@ class CustomerController extends AbstractController
      *
      * @return \App\Entity\Customer[]
      */
-    public function listAction(Request $request)
+    public function listAction(Request $request, TokenStorageInterface $tokenStorage)
     {
         $user = $this->userRepo->findOneBy(['id' => $request->attributes->get('id')]);
         $customers = $this->repository->findByUser($user);
