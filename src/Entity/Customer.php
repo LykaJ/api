@@ -18,6 +18,32 @@ use JMS\Serializer\Annotation as Serializer;
  *     absolute=true
  *     )
  * )
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href=@Hateoas\Route(
+ *     "customer.show",
+ *     parameters={"id" = "expr(object.getId())"},
+ *     absolute=true
+ *     )
+ *)
+ *
+ * @Hateoas\Relation(
+ *     "create",
+ *     href=@Hateoas\Route(
+ *     "customer.create",
+ *     absolute= true
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *     "delete",
+ *     href=@Hateoas\Route(
+ *     "customer.delete",
+ *     parameters={"id" = "expr(object.getId())"},
+ *     absolute=true
+ *     )
+ *)
  */
 class Customer
 {
