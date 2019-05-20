@@ -30,7 +30,7 @@ class ProductController extends AbstractController
      *     name="product.show",
      *     requirements={"id"="\d+"}
      * )
-     * @Rest\View()
+     * @Rest\View(statusCode=200)
      */
     public function show(Product $product)
     {
