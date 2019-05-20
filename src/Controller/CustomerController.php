@@ -21,6 +21,7 @@ class CustomerController extends AbstractController
     }
 
     /**
+     *
      * @Rest\Get(
      *     path="api/customers/",
      *     name="customers"
@@ -28,12 +29,17 @@ class CustomerController extends AbstractController
      *
      * @Rest\View(statusCode=200)
      *
-     * @return \App\Entity\Customer[]
+     * @param Security $security
+     * @return mixed|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
     public function listAction(Security $security)
     {
         $user = $security->getToken()->getUser();
         $customers = $this->repository->findByUser($user);
+
+        if (!$customers) {
+            return $this->createNotFoundException('This user has no customer');
+        }
 
 
         return $customers;
