@@ -26,11 +26,6 @@ class User implements UserInterface
     private $username;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $token;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private $password;
@@ -68,17 +63,6 @@ class User implements UserInterface
         return $this->username;
     }
 
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }
-
-    public function setToken(string $token): self
-    {
-        $this->token = $token;
-
-        return $this;
-    }
 
     public function getPassword(): ?string
     {

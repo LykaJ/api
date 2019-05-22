@@ -11,6 +11,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
@@ -105,7 +106,7 @@ class CustomerController extends AbstractController
 
     /**
      * @Rest\Post(
-     *     path="api/customer/{id}/delete",
+     *     path="api/customer/delete/{id}",
      *     name="customer.delete"
      * )
      *
@@ -117,5 +118,10 @@ class CustomerController extends AbstractController
     {
         $this->manager->remove($customer);
         $this->manager->flush();
+
+        $response = new JsonResponse();
+        $response->setData(['data' => 'The user was successfully deleted']);
+
+        return $response;
     }
 }
