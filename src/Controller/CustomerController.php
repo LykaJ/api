@@ -121,6 +121,7 @@ class CustomerController extends AbstractController
 
         $response = new JsonResponse();
         $response->setData(['data' => 'The user was successfully deleted']);
+        $response->setStatusCode(Response::HTTP_OK);
 
         return $response;
     }
