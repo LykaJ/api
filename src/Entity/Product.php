@@ -8,6 +8,7 @@ use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @ORM\Table(name="product")
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  * @Serializer\ExclusionPolicy("ALL")
  *
@@ -88,9 +89,24 @@ class Product
     private $color;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="datetime")
      */
-    private $image;
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $editedAt;
+
+    /**
+     * Product constructor.
+     * @throws \Exception
+     */
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime('now');
+        $this->editedAt = new \DateTime('now');
+    }
 
     public function getId(): ?int
     {
@@ -169,14 +185,26 @@ class Product
         return $this;
     }
 
-    public function getImage(): ?string
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->image;
+        return $this->createdAt;
     }
 
-    public function setImage(?string $image): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
-        $this->image = $image;
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getEditedAt(): ?\DateTimeInterface
+    {
+        return $this->editedAt;
+    }
+
+    public function setEditedAt(\DateTimeInterface $editedAt): self
+    {
+        $this->editedAt = $editedAt;
 
         return $this;
     }

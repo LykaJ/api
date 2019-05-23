@@ -25,15 +25,15 @@ class UserRepository extends ServiceEntityRepository
     public function search($term, $order = 'asc', $limit = 20, $offset = 0)
     {
         $queryBuilder = $this
-            ->createQueryBuilder('c')
-            ->select('c')
-            ->orderBy('c.name', $order)
+            ->createQueryBuilder('u')
+            ->select('u')
+            ->orderBy('u.username', $order)
         ;
 
         if ($term)
         {
             $queryBuilder
-                ->where('a.name LIKE ?1')
+                ->where('u.username LIKE ?1')
                 ->setParameter(1, '%'.$term.'%')
             ;
         }

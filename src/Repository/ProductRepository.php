@@ -33,7 +33,7 @@ class ProductRepository extends ServiceEntityRepository
         if ($term)
         {
             $queryBuilder
-                ->where('a.title LIKE ?1')
+                ->where('p.name LIKE ?1')
                 ->setParameter(1, '%'.$term.'%')
                 ;
         }

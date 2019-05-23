@@ -25,7 +25,7 @@ class CustomerRepository extends ServiceEntityRepository
             ->select('c')
             ->where('c.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('c.lastname', 'ASC')
+            ->orderBy('c.lastname', 'DESC')
             ->getQuery()
             ->getResult()
             ;

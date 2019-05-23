@@ -10,14 +10,6 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
  * @Serializer\ExclusionPolicy("ALL")
  *
- * @Hateoas\Relation(
- *     "self",
- *     href=@Hateoas\Route(
- *     "customers",
- *     parameters={"id" = "expr(object.getUser().getId())"},
- *     absolute=true
- *     )
- * )
  *
  * @Hateoas\Relation(
  *     "show",
@@ -101,6 +93,20 @@ class Customer
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * Customer constructor.
+     * @throws \Exception
+     */
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -199,6 +205,18 @@ class Customer
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

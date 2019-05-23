@@ -2,9 +2,8 @@
 
 namespace App\Representation;
 
-
-use JMS\Serializer\Annotation\Type;
 use Pagerfanta\Pagerfanta;
+use JMS\Serializer\Annotation\Type;
 
 class Users
 {

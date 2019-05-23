@@ -10,8 +10,10 @@ use App\Representation\Products;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -31,10 +33,37 @@ class ProductController extends AbstractController
      *     requirements={"id"="\d+"}
      * )
      * @Rest\View(statusCode=200)
+     *
+     * @param Product $product
+     * @return Product|Response
      */
-    public function show(Product $product)
+    public function show(Product $product, SerializerInterface $serializer)
     {
-        return $product;
+        $data = $serializer->serialize($product, 'json');
+        $response = new Response($data);
+
+        if (!$product)
+        {
+
+            return $response
+                ->setStatusCode(Response::HTTP_BAD_REQUEST)
+                ;
+        }
+
+        $date = new \DateTime($product->getEditedAt());
+
+        $response
+            ->setStatusCode(Response::HTTP_OK)
+            ->setCache([
+                'last_modified' => $date,
+                'max_age' => 10,
+                's_maxage' => 10,
+                'public' => true,
+            ])
+            ->headers->set('Content-Type', 'application/json')
+        ;
+
+        return $response;
     }
 
     /**
@@ -59,7 +88,7 @@ class ProductController extends AbstractController
         $manager->flush();
 
         $view = View::create();
-        $view->setData($product)
+        $view->setData(['message' => 'The product was successfully created'])
             ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
         ;
 
