@@ -43,6 +43,12 @@ class UserController extends AbstractController
      */
     public function show(User $client)
     {
+        if (!$client)
+        {
+            $response = new JsonResponse();
+            $response->setData(['data' => "This client does not exit"]);
+        }
+
         return $client;
     }
 

@@ -12,6 +12,8 @@ use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -34,6 +36,12 @@ class ProductController extends AbstractController
      */
     public function show(Product $product)
     {
+        if (!$product)
+        {
+            $response = new JsonResponse();
+            return $response->setData(['message' => "No product attached to this id"])->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
+
         return $product;
     }
 
@@ -59,7 +67,7 @@ class ProductController extends AbstractController
         $manager->flush();
 
         $view = View::create();
-        $view->setData($product)
+        $view->setData(['message' => 'The product was successfully created'])
             ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
         ;
 

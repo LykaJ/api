@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,12 +23,14 @@ class CustomerController extends AbstractController
     private $repository;
     private $userRepo;
     private $manager;
+    private $JWTencoder;
 
-    public function __construct(CustomerRepository $repository, UserRepository $userRepo, ObjectManager $manager)
+    public function __construct(CustomerRepository $repository, UserRepository $userRepo, ObjectManager $manager, JWTEncoderInterface $JWTEncoder)
     {
         $this->repository = $repository;
         $this->userRepo = $userRepo;
         $this->manager = $manager;
+        $this->JWTencoder = $JWTEncoder;
     }
 
     /**
@@ -48,9 +51,9 @@ class CustomerController extends AbstractController
         $customers = $this->repository->findByUser($user);
 
         if (!$customers) {
-            return $this->createNotFoundException('This user has no customer');
+            $response = new JsonResponse();
+            return $response->setData(['message' => 'The user has no customer'])->setStatusCode(Response::HTTP_NOT_FOUND);
         }
-
 
         return $customers;
     }
@@ -97,7 +100,7 @@ class CustomerController extends AbstractController
         $this->manager->flush();
 
         $view = View::create();
-        $view->setData($customer)
+        $view->setData([$customer, 'The customer was successfully created'])
             ->setLocation($this->generateUrl('customer.show', ['id' => $customer->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
         ;
 
@@ -120,8 +123,13 @@ class CustomerController extends AbstractController
         $this->manager->flush();
 
         $response = new JsonResponse();
-        $response->setData(['data' => 'The user was successfully deleted']);
+        $response->setData(['message' => 'The customer was successfully deleted']);
         $response->setStatusCode(Response::HTTP_OK);
+
+        if (!$customer)
+        {
+            return $response->setData(['data' => 'This customer does not exist'])->setStatusCode(Response::HTTP_BAD_REQUEST);
+        }
 
         return $response;
     }
