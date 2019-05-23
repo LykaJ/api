@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use JMS\Serializer\SerializerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,17 +46,34 @@ class CustomerController extends AbstractController
      * @param Security $security
      * @return mixed|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function listAction(Security $security)
+    public function listAction(Security $security, SerializerInterface $serializer)
     {
         $user = $security->getToken()->getUser();
         $customers = $this->repository->findByUser($user);
+        $data = $serializer->serialize($customers, 'json');
 
-        if (!$customers) {
-            $response = new JsonResponse();
-            return $response->setData(['message' => 'The user has no customer'])->setStatusCode(Response::HTTP_NOT_FOUND);
+        $response = new Response($data);
+
+        foreach ($customers as $customer)
+        {
+           $date = $customer->getCreatedAt();
         }
 
-        return $customers;
+        if (!$customers) {
+            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        $response
+            ->setStatusCode(Response::HTTP_OK)
+            ->setCache([
+            'last_modified' => $date,
+            'max_age' => 3600,
+            'public' => true
+        ])
+            ->headers->set('Content-Type', 'application/json')
+        ;
+
+        return $response;
     }
 
     /**
@@ -84,6 +102,7 @@ class CustomerController extends AbstractController
      * @ParamConverter("customer", converter="fos_rest.request_body")
      *
      * @param Customer $customer
+     * @param Security $security
      * @param ConstraintViolationList $violations
      * @param ExceptionListener $listener
      * @return View
@@ -95,6 +114,7 @@ class CustomerController extends AbstractController
 
         $user = $security->getToken()->getUser();
         $customer->setUser($user);
+        $customer->setCreatedAt(new \DateTime('now'));
 
         $this->manager->persist($customer);
         $this->manager->flush();

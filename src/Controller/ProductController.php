@@ -50,9 +50,15 @@ class ProductController extends AbstractController
                 ;
         }
 
+        $date = new \DateTime($product->getEditedAt());
+
         $response
             ->setStatusCode(Response::HTTP_OK)
-            ->setSharedMaxAge(3600)
+            ->setCache([
+                'last_modified' => $date,
+                'max_age' => 3600,
+                'public' => true,
+            ])
             ->headers->set('Content-Type', 'application/json')
         ;
 
