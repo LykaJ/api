@@ -14,6 +14,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
@@ -71,23 +72,38 @@ class CustomerController extends AbstractController
      * @param Customer $customer
      * @return Response
      */
-    public function show(Customer $customer, SerializerInterface $serializer)
+    public function show(Customer $customer, SerializerInterface $serializer, Request $request, Security $security)
     {
         $data = $serializer->serialize($customer, 'json');
         $response = new Response($data);
-
         $date = $customer->getCreatedAt();
+        $currentUser = $security->getToken()->getUser();
+        $user = $customer->getUser();
 
-        $response
-            ->setStatusCode(Response::HTTP_OK)
-            ->setCache([
-                'last_modified' => $date,
-                'max_age' => 10,
-                's_maxage' => 10,
-                'public' => true,
-            ])
-            ->headers->set('Content-Type', 'application/json')
-        ;
+        if ($currentUser === $user)
+        {
+            $response
+                ->setStatusCode(Response::HTTP_OK)
+                ->setEtag(md5($response->getContent()))
+                ->setCache([
+                    'last_modified' => $date,
+                    'etag' => $response->getEtag(),
+                    'public' => true,
+                ])
+                ->headers->set('Content-Type', 'application/json')
+            ;
+        } else {
+            $jsonResponse = new JsonResponse();
+            return $jsonResponse
+                ->setData(['message' => 'You do not have access to this data.'])
+                ->setStatusCode(Response::HTTP_FORBIDDEN)
+                ;
+        }
+
+        if ($response->isNotModified($request))
+        {
+            return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
+        }
 
         return $response;
     }
