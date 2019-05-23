@@ -46,34 +46,17 @@ class CustomerController extends AbstractController
      * @param Security $security
      * @return mixed|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function listAction(Security $security, SerializerInterface $serializer)
+    public function listAction(Security $security)
     {
         $user = $security->getToken()->getUser();
         $customers = $this->repository->findByUser($user);
-        $data = $serializer->serialize($customers, 'json');
-
-        $response = new Response($data);
-
-        foreach ($customers as $customer)
-        {
-           $date = $customer->getCreatedAt();
-        }
 
         if (!$customers) {
+            $response = new JsonResponse();
             return $response->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
-        $response
-            ->setStatusCode(Response::HTTP_OK)
-            ->setCache([
-            'last_modified' => $date,
-            'max_age' => 3600,
-            'public' => true
-        ])
-            ->headers->set('Content-Type', 'application/json')
-        ;
-
-        return $response;
+        return $customers;
     }
 
     /**
@@ -86,11 +69,26 @@ class CustomerController extends AbstractController
      * @Rest\View(statusCode=200)
      *
      * @param Customer $customer
-     * @return Customer
+     * @return Response
      */
-    public function show(Customer $customer)
+    public function show(Customer $customer, SerializerInterface $serializer)
     {
-        return $customer;
+        $data = $serializer->serialize($customer, 'json');
+        $response = new Response($data);
+
+        $date = $customer->getCreatedAt();
+
+        $response
+            ->setStatusCode(Response::HTTP_OK)
+            ->setCache([
+                'last_modified' => $date,
+                'max_age' => 3600,
+                'public' => true,
+            ])
+            ->headers->set('Content-Type', 'application/json')
+        ;
+
+        return $response;
     }
 
     /**
