@@ -82,7 +82,8 @@ class CustomerController extends AbstractController
             ->setStatusCode(Response::HTTP_OK)
             ->setCache([
                 'last_modified' => $date,
-                'max_age' => 3600,
+                'max_age' => 10,
+                's_maxage' => 10,
                 'public' => true,
             ])
             ->headers->set('Content-Type', 'application/json')
