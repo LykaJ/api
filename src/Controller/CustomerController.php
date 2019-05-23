@@ -114,8 +114,8 @@ class CustomerController extends AbstractController
      * )
      *
      * @Rest\View(statusCode=200)
-     *
      * @param Customer $customer
+     * @return JsonResponse
      */
     public function delete(Customer $customer)
     {

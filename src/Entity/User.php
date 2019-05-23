@@ -5,11 +5,33 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ *
+ * @Serializer\ExclusionPolicy("ALL")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href=@Hateoas\Route(
+ *     "user.show",
+ *     parameters={ "id" = "expr(object.getId())" },
+ *     absolute=true
+ *     )
+ * )
+ *
+ * @Hateoas\Relation(
+ *     "customers",
+ *     href=@Hateoas\Route(
+ *     "customers",
+ *     parameters={ "id" = "expr(object.getId())" },
+ *     absolute=true
+ *     )
+ * )
  */
 class User implements UserInterface
 {
@@ -17,11 +39,13 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Serializer\Expose()
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Serializer\Expose()
      */
     private $username;
 

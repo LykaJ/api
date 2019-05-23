@@ -2,23 +2,16 @@
 
 namespace App\Controller;
 
+
+
 use App\Entity\User;
-use App\EventSubscriber\ExceptionListener;
-use App\Pager\Pager;
 use App\Repository\UserRepository;
 use App\Representation\Users;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
-use FOS\RestBundle\View\View;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
@@ -31,29 +24,25 @@ class UserController extends AbstractController
 
     /**
      * @Rest\Get(
-     *     path="user/{id}",
+     *     path="/user/{id}",
      *     name="user.show",
      *     requirements={"id"="\d+"}
      * )
-     *
-     * @Rest\View()
-     *
-     * @param User $client
-     * @return User
+     * @Rest\View(statusCode=200)
      */
-    public function show(User $client)
+    public function show(User $user)
     {
-        if (!$client)
+        if (!$user)
         {
             $response = new JsonResponse();
-            $response->setData(['data' => "This client does not exit"]);
+            return $response->setData(['message' => "No user attached to this id"])->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
-        return $client;
+        return $user;
     }
 
+
     /**
-     * /**
      * @Rest\Get(
      *     path="users",
      *     name="user.list"
@@ -74,7 +63,7 @@ class UserController extends AbstractController
      * @Rest\QueryParam(
      *     name="limit",
      *     requirements="\d+",
-     *     default="5",
+     *     default="15",
      *     description="Max number of product per page"
      * )
      * @Rest\QueryParam(
