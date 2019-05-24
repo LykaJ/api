@@ -47,17 +47,29 @@ class CustomerController extends AbstractController
      * @param Security $security
      * @return mixed|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function listAction(Security $security)
+    public function listAction(Security $security, SerializerInterface $serializer, Request $request)
     {
         $user = $security->getToken()->getUser();
         $customers = $this->repository->findByUser($user);
+
+        $data = $serializer->serialize($customers, 'json');
+
+        $response = new Response($data);
+        $response
+            ->setEtag(md5($response->getContent()))
+            ->setCache([
+                'etag' => $response->getEtag(),
+                'public' => true
+            ])
+            ->isNotModified($request)
+        ;
 
         if (!$customers) {
             $response = new JsonResponse();
             return $response->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
-        return $customers;
+        return $response;
     }
 
     /**
@@ -83,15 +95,15 @@ class CustomerController extends AbstractController
         if ($currentUser === $user)
         {
             $response
-                ->setStatusCode(Response::HTTP_OK)
                 ->setEtag(md5($response->getContent()))
                 ->setCache([
                     'last_modified' => $date,
                     'etag' => $response->getEtag(),
                     'public' => true,
                 ])
-                ->headers->set('Content-Type', 'application/json')
+                ->isNotModified($request)
             ;
+
         } else {
             $jsonResponse = new JsonResponse();
             return $jsonResponse

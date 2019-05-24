@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
@@ -60,6 +61,10 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(
+     *     min="10",
+     *     minMessage="The address should not be under {{ limit }} characters."
+     * )
      * @Serializer\Expose()
      */
     private $address;
@@ -78,6 +83,7 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Email()
      * @Serializer\Expose()
      */
     private $email;
