@@ -9,11 +9,14 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
@@ -46,17 +49,46 @@ class CustomerController extends AbstractController
      * @param Security $security
      * @return mixed|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function listAction(Security $security)
+    public function listAction(Security $security, SerializerInterface $serializer, Request $request)
     {
         $user = $security->getToken()->getUser();
         $customers = $this->repository->findByUser($user);
+
+        $limit = 15;
+        $page = 1;
+        $numberOfPages = (int) ceil(count($customers) / $limit);
+
+        $collection = new CollectionRepresentation(
+            $customers
+        );
+
+        $paginated = new PaginatedRepresentation(
+            $collection,
+            'customers',
+            array (),
+            $page,
+            $limit,
+            $numberOfPages
+        );
+
+        $data = $serializer->serialize($paginated, 'json');
+
+        $response = new Response($data);
+        $response
+            ->setEtag(md5($response->getContent()))
+            ->setCache([
+                'etag' => $response->getEtag(),
+                'public' => true
+            ])
+            ->isNotModified($request)
+        ;
 
         if (!$customers) {
             $response = new JsonResponse();
             return $response->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
-        return $customers;
+        return $response;
     }
 
     /**
@@ -71,23 +103,38 @@ class CustomerController extends AbstractController
      * @param Customer $customer
      * @return Response
      */
-    public function show(Customer $customer, SerializerInterface $serializer)
+    public function show(Customer $customer, SerializerInterface $serializer, Request $request, Security $security)
     {
         $data = $serializer->serialize($customer, 'json');
         $response = new Response($data);
-
         $date = $customer->getCreatedAt();
+        $currentUser = $security->getToken()->getUser();
+        $user = $customer->getUser();
 
-        $response
-            ->setStatusCode(Response::HTTP_OK)
-            ->setCache([
-                'last_modified' => $date,
-                'max_age' => 10,
-                's_maxage' => 10,
-                'public' => true,
-            ])
-            ->headers->set('Content-Type', 'application/json')
-        ;
+        if ($currentUser === $user)
+        {
+            $response
+                ->setEtag(md5($response->getContent()))
+                ->setCache([
+                    'last_modified' => $date,
+                    'etag' => $response->getEtag(),
+                    'public' => true,
+                ])
+                ->isNotModified($request)
+            ;
+
+        } else {
+            $jsonResponse = new JsonResponse();
+            return $jsonResponse
+                ->setData(['message' => 'You do not have access to this data.'])
+                ->setStatusCode(Response::HTTP_FORBIDDEN)
+                ;
+        }
+
+        if ($response->isNotModified($request))
+        {
+            return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
+        }
 
         return $response;
     }
