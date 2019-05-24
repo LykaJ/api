@@ -31,6 +31,19 @@ class CustomerRepository extends ServiceEntityRepository
             ;
     }
 
+    public function findByUserAndLimit($user, $limit)
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c')
+            ->where('c.user = :user')
+            ->setParameter('user', $user)
+            ->setMaxResults($limit)
+            ->orderBy('c.lastname', 'DESC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
 
 
     // /**

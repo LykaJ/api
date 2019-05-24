@@ -22,16 +22,16 @@ class ProductRepository extends ServiceEntityRepository
         $this->repository = $repository;
     }
 
-    public function findProducts($offset, $limit)
+    public function findByLimit($limit)
     {
         return $this->createQueryBuilder('p')
             ->select('p')
             ->setMaxResults($limit)
-            ->setFirstResult($offset)
             ->getQuery()
             ->getResult()
             ;
     }
+
 
 
     // /**

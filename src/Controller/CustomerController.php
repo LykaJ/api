@@ -54,7 +54,17 @@ class CustomerController extends AbstractController
         $user = $security->getToken()->getUser();
         $customers = $this->repository->findByUser($user);
 
-        $limit = 15;
+        $requestLimit = $request->get('limit');
+
+        if (!$requestLimit)
+        {
+            $limit = 15;
+
+        } else {
+            $limit = $requestLimit;
+            $customers = $this->repository->findByUserAndLimit($user, $limit);
+        }
+
         $page = 1;
         $numberOfPages = (int) ceil(count($customers) / $limit);
 

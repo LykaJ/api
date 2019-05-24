@@ -120,7 +120,17 @@ class ProductController extends AbstractController
 
         $products = $this->repository->findAll();
 
-        $limit = 15;
+        $requestLimit = $request->get('limit');
+
+        if (!$requestLimit)
+        {
+            $limit = 15;
+
+        } else {
+            $limit = $requestLimit;
+            $products = $this->repository->findByLimit($limit);
+        }
+
         $page = 1;
         $numberOfPages = (int) ceil(count($products) / $limit);
 
@@ -136,7 +146,6 @@ class ProductController extends AbstractController
             $limit,
             $numberOfPages
         );
-
 
         $data = $serializer->serialize($paginated, 'json');
 
