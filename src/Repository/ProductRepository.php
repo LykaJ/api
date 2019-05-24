@@ -22,24 +22,17 @@ class ProductRepository extends ServiceEntityRepository
         $this->repository = $repository;
     }
 
-    public function search($term, $order = 'asc', $limit = 20, $offset = 0)
+    public function findProducts($offset, $limit)
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('p')
+        return $this->createQueryBuilder('p')
             ->select('p')
-            ->orderBy('p.name', $order)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult()
             ;
-
-        if ($term)
-        {
-            $queryBuilder
-                ->where('p.name LIKE ?1')
-                ->setParameter(1, '%'.$term.'%')
-                ;
-        }
-
-        return $this->repository->paginate($queryBuilder, $limit, $offset);
     }
+
 
     // /**
     //  * @return Product[] Returns an array of Product objects

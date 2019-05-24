@@ -9,6 +9,8 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -52,7 +54,24 @@ class CustomerController extends AbstractController
         $user = $security->getToken()->getUser();
         $customers = $this->repository->findByUser($user);
 
-        $data = $serializer->serialize($customers, 'json');
+        $limit = 15;
+        $page = 1;
+        $numberOfPages = (int) ceil(count($customers) / $limit);
+
+        $collection = new CollectionRepresentation(
+            $customers
+        );
+
+        $paginated = new PaginatedRepresentation(
+            $collection,
+            'customers',
+            array (),
+            $page,
+            $limit,
+            $numberOfPages
+        );
+
+        $data = $serializer->serialize($paginated, 'json');
 
         $response = new Response($data);
         $response

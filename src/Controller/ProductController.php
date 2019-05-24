@@ -6,10 +6,10 @@ use App\Entity\Product;
 use App\EventSubscriber\ExceptionListener;
 use App\Exception\ResourceValidationException;
 use App\Repository\ProductRepository;
-use App\Representation\Products;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\View\View;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -110,16 +110,35 @@ class ProductController extends AbstractController
     /**
      * @Rest\Get(
      *     path="products",
-     *     name="product.list"
+     *     name="products"
      * )
      *
      * @Rest\View()
      */
     public function listAction(SerializerInterface $serializer, Request $request)
     {
+
         $products = $this->repository->findAll();
 
-        $data = $serializer->serialize($products, 'json');
+        $limit = 15;
+        $page = 1;
+        $numberOfPages = (int) ceil(count($products) / $limit);
+
+        $collection = new CollectionRepresentation(
+            $products
+        );
+
+        $paginated = new PaginatedRepresentation(
+            $collection,
+            'products',
+            array(),
+            $page,
+            $limit,
+            $numberOfPages
+        );
+
+
+        $data = $serializer->serialize($paginated, 'json');
 
         $response = new Response($data);
         $response
