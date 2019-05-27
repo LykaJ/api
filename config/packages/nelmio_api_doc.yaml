@@ -1,0 +1,20 @@
+nelmio_api_doc:
+    documentation:
+        schemes: [http, https]
+        info:
+            title: BileMo
+            description: Project 7 OC PHP/SYMFONY!
+            version: 1.0.0
+
+        securityDefinitions:
+            Bearer:
+                type: apiKey
+                description: 'Value: Bearer {jwt}'
+                name: Authorization
+                in: header
+            security:
+                - Bearer: []
+
+
+
+

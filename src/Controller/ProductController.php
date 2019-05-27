@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 
 class ProductController extends AbstractController
 {
@@ -35,10 +37,26 @@ class ProductController extends AbstractController
      *     name="product.show",
      *     requirements={"id"="\d+"}
      * )
+     *
      * @Rest\View(statusCode=200)
      *
      * @Cache(expires="tomorrow")
      *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the detailled view of a product",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="204",
+     *     description="This product does not exist"
+     * )
+     *
+     * @SWG\Tag(name="Products")
      *
      * @param Product $product
      * @param SerializerInterface $serializer
@@ -86,6 +104,17 @@ class ProductController extends AbstractController
      * @Rest\View(StatusCode=201)
      * @ParamConverter("product", converter="fos_rest.request_body")
      *
+     * @SWG\Response(
+     *     response=201,
+     *     description="Create a new product",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     *
+     * @SWG\Tag(name="Products")
+     *
      * @param Product $product
      * @param ConstraintViolationList $violations
      * @return View
@@ -113,6 +142,22 @@ class ProductController extends AbstractController
      *     name="products"
      * )
      *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Get the list of products",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="204",
+     *     description="No product found"
+     * )
+     *
+     * @SWG\Tag(name="Products")
+     *
      * @Rest\View()
      */
     public function listAction(SerializerInterface $serializer, Request $request)
@@ -120,7 +165,17 @@ class ProductController extends AbstractController
 
         $products = $this->repository->findAll();
 
-        $limit = 15;
+        $requestLimit = $request->get('limit');
+
+        if (!$requestLimit)
+        {
+            $limit = 15;
+
+        } else {
+            $limit = $requestLimit;
+            $products = $this->repository->findByLimit($limit);
+        }
+
         $page = 1;
         $numberOfPages = (int) ceil(count($products) / $limit);
 
@@ -136,7 +191,6 @@ class ProductController extends AbstractController
             $limit,
             $numberOfPages
         );
-
 
         $data = $serializer->serialize($paginated, 'json');
 

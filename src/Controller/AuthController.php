@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,15 +19,15 @@ class AuthController extends AbstractController
 {
     /**
      * @Rest\Post(
-     *     path="register",
-     *     name="user.register",
+     *      path="register",
+     *      name="user.register"
      * )
      *
      * @Rest\View(StatusCode=201)
-     *
      * @param Request $request
      * @param UserPasswordEncoderInterface $encoder
      * @return View
+     *
      */
     public function register(Request $request, UserPasswordEncoderInterface $encoder)
     {
@@ -49,6 +52,23 @@ class AuthController extends AbstractController
 
     /**
      * @Route("/api", name="api")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Login",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Tag(name="Authorization")
+     * @Security(name="Bearer")
+     *
      * @return Response
      */
     public function api()
