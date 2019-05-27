@@ -19,6 +19,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use Swagger\Annotations as SWG;
 
 class ProductController extends AbstractController
 {
@@ -35,9 +38,22 @@ class ProductController extends AbstractController
      *     name="product.show",
      *     requirements={"id"="\d+"}
      * )
+     *
      * @Rest\View(statusCode=200)
      *
      * @Cache(expires="tomorrow")
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the detailled view of a product",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     *
+     * @SWG\Tag(name="products")
+     * @Security(name="Bearer")
      *
      *
      * @param Product $product
@@ -108,6 +124,7 @@ class ProductController extends AbstractController
     }
 
     /**
+     *
      * @Rest\Get(
      *     path="products",
      *     name="products"
