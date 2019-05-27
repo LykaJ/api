@@ -20,7 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use Swagger\Annotations as SWG;
 
 class ProductController extends AbstractController
@@ -52,9 +51,12 @@ class ProductController extends AbstractController
      *     )
      * )
      *
-     * @SWG\Tag(name="products")
-     * @Security(name="Bearer")
+     * @SWG\Response(
+     *     response="204",
+     *     description="This product does not exist"
+     * )
      *
+     * @SWG\Tag(name="Products")
      *
      * @param Product $product
      * @param SerializerInterface $serializer
@@ -102,6 +104,17 @@ class ProductController extends AbstractController
      * @Rest\View(StatusCode=201)
      * @ParamConverter("product", converter="fos_rest.request_body")
      *
+     * @SWG\Response(
+     *     response=201,
+     *     description="Create a new product",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     *
+     * @SWG\Tag(name="Products")
+     *
      * @param Product $product
      * @param ConstraintViolationList $violations
      * @return View
@@ -124,11 +137,26 @@ class ProductController extends AbstractController
     }
 
     /**
-     *
      * @Rest\Get(
      *     path="products",
      *     name="products"
      * )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Get the list of products",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="204",
+     *     description="No product found"
+     * )
+     *
+     * @SWG\Tag(name="Products")
      *
      * @Rest\View()
      */

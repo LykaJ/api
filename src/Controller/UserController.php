@@ -6,11 +6,15 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Representation\Users;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Request\ParamFetcherInterface;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
+use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
@@ -29,6 +33,23 @@ class UserController extends AbstractController
      *     requirements={"id"="\d+"}
      * )
      * @Rest\View(statusCode=200)
+     *
+     * @SWG\Response(
+     *     response="200",
+     *     description="Get the detailled view of a user",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Tag(name="Users")
+     *
      */
     public function show(User $user)
     {
@@ -44,45 +65,75 @@ class UserController extends AbstractController
 
     /**
      * @Rest\Get(
-     *     path="users",
-     *     name="user.list"
+     *     path="/users",
+     *     name="users"
+     * )
+
+     * @Rest\View()
+     *
+     * @SWG\Response(
+     *     response="200",
+     *     description="Get the list of users",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=User::class))
+     *     )
      * )
      *
-     * @Rest\QueryParam(
-     *     name="keyword",
-     *     requirements="[a-zA-Z0-9]",
-     *     nullable=true,
-     *     description="Keyword to search for"
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
-     * @Rest\QueryParam(
-     *     name="order",
-     *     requirements="asc|desc",
-     *     default="asc",
-     *     description="Sort order"
-     * )
-     * @Rest\QueryParam(
-     *     name="limit",
-     *     requirements="\d+",
-     *     default="15",
-     *     description="Max number of product per page"
-     * )
-     * @Rest\QueryParam(
-     *     name="offset",
-     *     requirements="\d+",
-     *     default="0",
-     *     description="The pagination offset"
-     * )
-     * @Rest\View()
+     *
+     * @SWG\Tag(name="Users")
      */
-    public function listAction(ParamFetcherInterface $fetcher)
+    public function listAction(Request $request, SerializerInterface $serializer)
     {
-        $pager = $this->repository->search(
-            $fetcher->get('keyword'),
-            $fetcher->get('order'),
-            $fetcher->get('limit'),
-            $fetcher->get('offset')
+        $users = $this->repository->findAll();
+        $requestLimit = $request->get('limit');
+
+        if (!$requestLimit)
+        {
+            $limit = 15;
+
+        } else {
+            $limit = $requestLimit;
+            $users = $this->repository->findAll();
+        }
+
+        $page = 1;
+        $numberOfPages = (int) ceil(count($users) / $limit);
+
+        $collection = new CollectionRepresentation(
+            $users
         );
 
-        return new Users($pager);
+        $paginated = new PaginatedRepresentation(
+            $collection,
+            'users',
+            array (),
+            $page,
+            $limit,
+            $numberOfPages
+        );
+
+        $data = $serializer->serialize($paginated, 'json');
+
+        $response = new Response($data);
+        $response
+            ->setEtag(md5($response->getContent()))
+            ->setCache([
+                'etag' => $response->getEtag(),
+                'public' => true
+            ])
+            ->isNotModified($request)
+        ;
+
+        if (!$users) {
+            $response = new JsonResponse();
+            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        return $response;
     }
 }

@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
 
 class CustomerController extends AbstractController
 {
@@ -45,6 +47,23 @@ class CustomerController extends AbstractController
      * )
      *
      * @Rest\View(statusCode=200)
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Get the list of customers for the authentified user",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Customer::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     * @SWG\Tag(name="Customers")
      *
      * @param Security $security
      * @return mixed|\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
@@ -110,6 +129,23 @@ class CustomerController extends AbstractController
      *
      * @Rest\View(statusCode=200)
      *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Get detailled view of a customer",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Customer::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     * @SWG\Tag(name="Customers")
+     *
      * @param Customer $customer
      * @return Response
      */
@@ -157,6 +193,23 @@ class CustomerController extends AbstractController
      * @Rest\View(StatusCode=201)
      * @ParamConverter("customer", converter="fos_rest.request_body")
      *
+     * @SWG\Response(
+     *     response=201,
+     *     description="Create a new customer",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Customer::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Tag(name="Customers")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     *
      * @param Customer $customer
      * @param Security $security
      * @param ConstraintViolationList $violations
@@ -184,10 +237,27 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Rest\Post(
+     * @Rest\Delete(
      *     path="api/customer/delete/{id}",
      *     name="customer.delete"
      * )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Delete a customer",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Customer::class))
+     *     )
+     * )
+     *
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Tag(name="Customers")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      *
      * @Rest\View(statusCode=200)
      * @param Customer $customer
