@@ -58,8 +58,21 @@ class CustomerController extends AbstractController
      * )
      *
      * @SWG\Response(
+     *     response="204",
+     *     description="The user has no customers"
+     * )
+     *
+     * @SWG\Response(
      *     response="401",
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
      * )
      *
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
@@ -113,8 +126,10 @@ class CustomerController extends AbstractController
         ;
 
         if (!$customers) {
-            $response = new JsonResponse();
-            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            $jsonResponse = new JsonResponse();
+            $jsonResponse
+                ->setStatusCode(Response::HTTP_NO_CONTENT);
+            return $jsonResponse;
         }
 
         return $response;
@@ -141,6 +156,14 @@ class CustomerController extends AbstractController
      * @SWG\Response(
      *     response="401",
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
      * )
      *
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
@@ -207,6 +230,14 @@ class CustomerController extends AbstractController
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
+     * )
+     *
      * @SWG\Tag(name="Customers")
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      *
@@ -254,6 +285,14 @@ class CustomerController extends AbstractController
      * @SWG\Response(
      *     response="401",
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
      * )
      *
      * @SWG\Tag(name="Customers")

@@ -35,10 +35,12 @@ class AuthController extends AbstractController
 
         $username = $request->request->get('_username');
         $password = $request->request->get('_password');
+        $role = $request->request->get('_role');
 
         $user = new User();
         $user->setUsername($username);
         $user->setPassword($encoder->encodePassword($user, $password));
+        $user->setRole($role);
         $em->persist($user);
         $em->flush();
 
@@ -64,6 +66,14 @@ class AuthController extends AbstractController
      * @SWG\Response(
      *     response="401",
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
      * )
      *
      * @SWG\Tag(name="Authorization")
