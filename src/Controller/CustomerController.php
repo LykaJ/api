@@ -150,6 +150,14 @@ class CustomerController extends AbstractController
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="query",
+     *     type="string",
+     *     required=true,
+     *     description="JWT token"
+     * )
+     *
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      * @SWG\Tag(name="Customers")
      *
