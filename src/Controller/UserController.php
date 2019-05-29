@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Security;
 
 class UserController extends AbstractController
 {
@@ -28,7 +29,7 @@ class UserController extends AbstractController
 
     /**
      * @Rest\Get(
-     *     path="/user/{id}",
+     *     path="api/users/{id}",
      *     name="user.show",
      *     requirements={"id"="\d+"}
      * )
@@ -44,28 +45,44 @@ class UserController extends AbstractController
      * )
      *
      * @SWG\Response(
+     *     response="400",
+     *     description="Bad request"
+     * )
+     *
+     * @SWG\Response(
      *     response="401",
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
      * @SWG\Tag(name="Users")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      *
      */
-    public function show(User $user)
+    public function show(User $user, Security $security)
     {
+        $currentUser = $security->getToken()->getUser();
+        $currentRole = $currentUser->getRole();
+
+        $response = new JsonResponse();
+
         if (!$user)
         {
-            $response = new JsonResponse();
             return $response->setData(['message' => "No user attached to this id"])->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
-        return $user;
+        if ($currentRole === 'ROLE_ADMIN')
+        {
+            return $user;
+        } else {
+            return $response->setData(['message' => "Access denied"])->setStatusCode(Response::HTTP_FORBIDDEN);
+        }
+
     }
 
 
     /**
      * @Rest\Get(
-     *     path="/users",
+     *     path="api/users",
      *     name="users"
      * )
 
@@ -86,11 +103,20 @@ class UserController extends AbstractController
      * )
      *
      * @SWG\Tag(name="Users")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     *
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @param Security $security
+     * @return JsonResponse|Response
      */
-    public function listAction(Request $request, SerializerInterface $serializer)
+    public function listAction(Request $request, SerializerInterface $serializer, Security $security)
     {
         $users = $this->repository->findAll();
         $requestLimit = $request->get('limit');
+
+        $currentUser = $security->getToken()->getUser();
+        $currentRole = $currentUser->getRole();
 
         if (!$requestLimit)
         {
@@ -117,23 +143,32 @@ class UserController extends AbstractController
             $numberOfPages
         );
 
-        $data = $serializer->serialize($paginated, 'json');
+        if ($currentRole === 'ROLE_ADMIN')
+        {
+            $data = $serializer->serialize($paginated, 'json');
 
-        $response = new Response($data);
-        $response
-            ->setEtag(md5($response->getContent()))
-            ->setCache([
-                'etag' => $response->getEtag(),
-                'public' => true
-            ])
-            ->isNotModified($request)
-        ;
+            $response = new Response($data);
+            $response
+                ->setEtag(md5($response->getContent()))
+                ->setCache([
+                    'etag' => $response->getEtag(),
+                    'public' => true
+                ])
+                ->isNotModified($request)
+            ;
 
-        if (!$users) {
-            $response = new JsonResponse();
-            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            if (!$users) {
+                $response = new JsonResponse();
+                return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            }
+
+            return $response;
+        } else {
+            $jsonResponse = new JsonResponse();
+
+            return $jsonResponse->setData(['message' => 'Access denied'])->setStatusCode(Response::HTTP_FORBIDDEN);
         }
 
-        return $response;
+
     }
 }

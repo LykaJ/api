@@ -11,6 +11,7 @@ use FOS\RestBundle\View\View;
 use Hateoas\Representation\CollectionRepresentation;
 use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -98,7 +99,7 @@ class ProductController extends AbstractController
 
     /**
      * @Rest\Post(
-     *     path="product",
+     *     path="api/product",
      *     name="product.create"
      * )
      * @Rest\View(StatusCode=201)
@@ -113,27 +114,47 @@ class ProductController extends AbstractController
      *     )
      * )
      *
+     * @SWG\Response(
+     *     response="401",
+     *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
      * @SWG\Tag(name="Products")
+     * @Security(name="Bearer")
      *
      * @param Product $product
      * @param ConstraintViolationList $violations
-     * @return View
+     * @param ExceptionListener $listener
+     * @param \Symfony\Component\Security\Core\Security $security
+     * @return View|JsonResponse
      * @throws ResourceValidationException
      */
-    public function create(Product $product, ConstraintViolationList $violations, ExceptionListener $listener)
+    public function create(Product $product, ConstraintViolationList $violations, ExceptionListener $listener, \Symfony\Component\Security\Core\Security $security)
     {
-        $listener->getViolations($violations);
+        $currentUser = $security->getToken()->getUser();
+        $currentRole = $currentUser->getRole();
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($product);
-        $manager->flush();
 
-        $view = View::create();
-        $view->setData(['message' => 'The product was successfully created'])
-            ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
-        ;
+        if ($currentRole === 'ROLE_ADMIN')
+        {
+            $listener->getViolations($violations);
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($product);
+            $manager->flush();
 
-        return $view;
+            $view = View::create();
+            $view->setData(['message' => 'The product was successfully created'])
+                ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
+            ;
+
+            return $view;
+
+        } else {
+            $jsonResponse = new JsonResponse();
+            return $jsonResponse->setData(['message' => 'Access denied'])->setStatusCode(Response::HTTP_FORBIDDEN);
+        }
+
+
     }
 
     /**

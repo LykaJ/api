@@ -64,6 +64,12 @@ class User implements UserInterface
      */
     private $customers;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Serializer\Expose()
+     */
+    private $role;
+
     public function __construct()
     {
         $this->isActive = true;
@@ -169,6 +175,18 @@ class User implements UserInterface
                 $customer->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): self
+    {
+        $this->role = $role;
 
         return $this;
     }
