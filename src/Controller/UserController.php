@@ -54,6 +54,14 @@ class UserController extends AbstractController
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
+     * )
+     *
      * @SWG\Tag(name="Users")
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      *
@@ -100,6 +108,14 @@ class UserController extends AbstractController
      * @SWG\Response(
      *     response="401",
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
      * )
      *
      * @SWG\Tag(name="Users")

@@ -68,6 +68,14 @@ class AuthController extends AbstractController
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
+     * )
+     *
      * @SWG\Tag(name="Authorization")
      * @Security(name="Bearer")
      *

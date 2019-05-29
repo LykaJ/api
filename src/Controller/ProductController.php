@@ -119,6 +119,14 @@ class ProductController extends AbstractController
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
+     * )
+     *
      * @SWG\Tag(name="Products")
      * @Security(name="Bearer")
      *

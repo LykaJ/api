@@ -67,6 +67,14 @@ class CustomerController extends AbstractController
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
+     * )
+     *
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      * @SWG\Tag(name="Customers")
      *
@@ -152,10 +160,10 @@ class CustomerController extends AbstractController
      *
      * @SWG\Parameter(
      *     name="Authorization",
-     *     in="query",
+     *     in="header",
      *     type="string",
      *     required=true,
-     *     description="JWT token"
+     *     description="Bearer {YourAccessToken}"
      * )
      *
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
@@ -222,6 +230,14 @@ class CustomerController extends AbstractController
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
+     * )
+     *
      * @SWG\Tag(name="Customers")
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      *
@@ -269,6 +285,14 @@ class CustomerController extends AbstractController
      * @SWG\Response(
      *     response="401",
      *     description="UNAUTHORIZED - JWT Token not found | Expired JWT Token | Invalid JWT Token"
+     * )
+     *
+     * @SWG\Parameter(
+     *     name="Authorization",
+     *     in="header",
+     *     type="string",
+     *     required=true,
+     *     description="Bearer {YourAccessToken}"
      * )
      *
      * @SWG\Tag(name="Customers")
