@@ -193,7 +193,6 @@ class ProductController extends AbstractController
     {
 
         $products = $this->repository->findAll();
-
         $requestLimit = $request->get('limit');
 
         if (!$requestLimit)
