@@ -23,10 +23,12 @@ To access the API documentation, request the route '/doc' (example: http://127.0
 To access the secured routes of the api, you need to be authentified. To do so:
 1. Request the following route via the POST method: http://127.0.0.1:8000/login_check
 1. In the **Body** of the request, add your username and password like so: 
+  ```
   {
 	   "username": "your_username",
 	   "password": "your_password"
   }
+  ```
 1. Send the request. 
 1. The API sends back a token. Copy that token and paste it in the header key Authorization under the value *Bearer* (example: Bearer YOUR_TOKEN).
 
@@ -35,4 +37,13 @@ You can now access all the secured routes of the api.
 ***
 # Usage #
 
-[How to add a user](https://github.com/LykaJ/api.wiki.git)
+## How to add a user
+1. Access the route /register via the POST method.
+1. In the request body, add the information of your new user as such:
+```   
+{
+    "_username": "your_username",
+    "_password": "your_password"
+} 
+```
+3. Send the request.
