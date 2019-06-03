@@ -35,4 +35,4 @@ You can now access all the secured routes of the api.
 ***
 # Usage #
 
-How to add a user
+[How to add a user](https://github.com/LykaJ/api.wiki.git)
