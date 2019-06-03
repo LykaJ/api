@@ -6,6 +6,7 @@ use App\Entity\Product;
 use App\EventSubscriber\ExceptionListener;
 use App\Exception\ResourceValidationException;
 use App\Repository\ProductRepository;
+use Blackfire\Client;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 use Hateoas\Representation\CollectionRepresentation;
@@ -166,6 +167,7 @@ class ProductController extends AbstractController
     }
 
     /**
+     *
      * @Rest\Get(
      *     path="products",
      *     name="products"
@@ -188,55 +190,73 @@ class ProductController extends AbstractController
      * @SWG\Tag(name="Products")
      *
      * @Rest\View()
+     *
+     * @param SerializerInterface $serializer
+     * @param Request $request
+     * @return JsonResponse|Response
+     * @throws \Exception
      */
     public function listAction(SerializerInterface $serializer, Request $request)
     {
+        $blackfire = new Client();
 
-        $products = $this->repository->findAll();
-        $requestLimit = $request->get('limit');
+        $config = (new \Blackfire\Profile\Configuration())->setTitle('Products');
 
-        if (!$requestLimit)
-        {
-            $limit = 15;
+        try{
+            $probe = $blackfire->createProbe($config);
 
-        } else {
-            $limit = $requestLimit;
-            $products = $this->repository->findByLimit($limit);
+            $products = $this->repository->findAll();
+            $requestLimit = $request->get('limit');
+
+            if (!$requestLimit)
+            {
+                $limit = 15;
+
+            } else {
+                $limit = $requestLimit;
+                $products = $this->repository->findByLimit($limit);
+            }
+
+            $page = 1;
+            $numberOfPages = (int) ceil(count($products) / $limit);
+
+            $collection = new CollectionRepresentation(
+                $products
+            );
+
+            $paginated = new PaginatedRepresentation(
+                $collection,
+                'products',
+                array(),
+                $page,
+                $limit,
+                $numberOfPages
+            );
+
+            $data = $serializer->serialize($paginated, 'json');
+
+            $response = new Response($data);
+            $response
+                ->setEtag(md5($response->getContent()))
+                ->setCache([
+                    'etag' => $response->getEtag(),
+                    'public' => true
+                ])
+                ->isNotModified($request)
+            ;
+
+            if (!$products) {
+                $response = new JsonResponse();
+                return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            }
+
+            $profile = $blackfire->endProbe($probe);
+
+            return $response;
+
+        } catch (\Blackfire\Exception\ExceptionInterface $e) {
+
+            throw new \Exception("BlackFire could not profile data", 400);
         }
-
-        $page = 1;
-        $numberOfPages = (int) ceil(count($products) / $limit);
-
-        $collection = new CollectionRepresentation(
-            $products
-        );
-
-        $paginated = new PaginatedRepresentation(
-            $collection,
-            'products',
-            array(),
-            $page,
-            $limit,
-            $numberOfPages
-        );
-
-        $data = $serializer->serialize($paginated, 'json');
-
-        $response = new Response($data);
-        $response
-            ->setEtag(md5($response->getContent()))
-            ->setCache([
-                'etag' => $response->getEtag(),
-                'public' => true
-            ])
-            ->isNotModified($request)
-        ;
-
-        if (!$products) {
-            $response = new JsonResponse();
-            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
-        }
-
-        return $response;
     }
 }

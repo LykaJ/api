@@ -1,4 +1,10 @@
 {
+    "blackfire/php-sdk": {
+        "version": "v1.18.0"
+    },
+    "composer/ca-bundle": {
+        "version": "1.1.4"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -107,6 +113,9 @@
         "files": [
             "config/packages/fos_rest.yaml"
         ]
+    },
+    "fzaninotto/faker": {
+        "version": "v1.8.0"
     },
     "hoa/compiler": {
         "version": "3.17.08.08"
