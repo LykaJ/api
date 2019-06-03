@@ -1,7 +1,6 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/df8cbc772601e9169865/maintainability)](https://codeclimate.com/github/LykaJ/api/maintainability)
 
 # Installation #
-***
 
 1. Clone or download the project.
 1. Install dependencies with composer: `$ composer install`
@@ -15,13 +14,11 @@
 1. Run the Web server with `php bin/console server:start`.
 1. Use Postman to navigate through the API.
 
-# Api Documentation #
-***
+# API Documentation #
 
 To access the API documentation, request the route '/doc' (example: http://127.0.0.1:8000/doc).
 
 # How to login to the app #
-***
 
 To access the secured routes of the api, you need to be authentified. To do so:
 1. Request the following route via the POST method: http://127.0.0.1:8000/login_check
@@ -35,7 +32,7 @@ To access the secured routes of the api, you need to be authentified. To do so:
 
 You can now access all the secured routes of the api.
 
-# Usage #
 ***
+# Usage #
 
 How to add a user
