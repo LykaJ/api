@@ -9,7 +9,7 @@
 1. Edit the JWT passphrase:
 `JWT_PASSPHRASE=password_jwt`
 1. Create database `php bin/console doctrine:database:create`.
-1. Run the command `php bin/console doctrine:schema:update --force` to create the schema in the database.
+1. Run the command `php bin/console doctrine:schema:create` to create the schema in the database.
 1. Load the fixtures with `php bin/console doctrine:fixtures:load --append`.
 1. Run the Web server with `php bin/console server:start`.
 1. Use Postman to navigate through the API.
