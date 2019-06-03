@@ -22,23 +22,14 @@ class UserRepository extends ServiceEntityRepository
         $this->repository = $repository;
     }
 
-    public function search($term, $order = 'asc', $limit = 20, $offset = 0)
+    public function findByLimit($limit)
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('u')
+        return $this->createQueryBuilder('u')
             ->select('u')
-            ->orderBy('u.username', $order)
-        ;
-
-        if ($term)
-        {
-            $queryBuilder
-                ->where('u.username LIKE ?1')
-                ->setParameter(1, '%'.$term.'%')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
             ;
-        }
-
-        return $this->repository->paginate($queryBuilder, $limit, $offset);
     }
 
     // /**

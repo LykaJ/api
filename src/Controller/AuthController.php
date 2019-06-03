@@ -35,12 +35,11 @@ class AuthController extends AbstractController
 
         $username = $request->request->get('_username');
         $password = $request->request->get('_password');
-        $role = $request->request->get('_role');
 
         $user = new User();
         $user->setUsername($username);
         $user->setPassword($encoder->encodePassword($user, $password));
-        $user->setRole($role);
+        $user->setRole('ROLE_USER');
         $em->persist($user);
         $em->flush();
 
@@ -53,7 +52,7 @@ class AuthController extends AbstractController
     }
 
     /**
-     * @Route("/api", name="api")
+     * @Route("/api", name="api", methods={"GET|POST|DELETE"})
      * @SWG\Response(
      *     response=200,
      *     description="Login",

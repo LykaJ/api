@@ -140,7 +140,7 @@ class UserController extends AbstractController
 
         } else {
             $limit = $requestLimit;
-            $users = $this->repository->findAll();
+            $users = $this->repository->findByLimit($limit);
         }
 
         $page = 1;
