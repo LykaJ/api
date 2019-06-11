@@ -1,5 +1,16 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/df8cbc772601e9169865/maintainability)](https://codeclimate.com/github/LykaJ/api/maintainability)
 
+# Before starting the installation #
+
+Before staring, you need to generate the SSH keys. 
+To do so, paste the following in your terminal:
+```
+$ mkdir -p config/jwt # For Symfony3+, no need of the -p option
+$ openssl genrsa -out config/jwt/private.pem -aes256 4096
+$ openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
+```
+Note your password_jwt to paste it in the .env later.
+
 # Installation #
 
 1. Clone or download the project.
@@ -21,14 +32,7 @@ To access the API documentation, request the route '/doc' (example: http://127.0
 # How to login to the app #
 
 To access the secured routes of the api, you need to be authentified. 
-Before staring, you need to generate the SSH keys. 
-To do so, paste the following in your terminal:
-```
-$ mkdir -p config/jwt # For Symfony3+, no need of the -p option
-$ openssl genrsa -out config/jwt/private.pem -aes256 4096
-$ openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
-```
-Then:
+To do so:
 1. Request the following route via the POST method: http://127.0.0.1:8000/login_check
 1. In the **Body** of the request, add your username and password like so: 
   ```
