@@ -187,6 +187,14 @@ class ProductController extends AbstractController
      *     description="No product found"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Pagination",
+     *     in="path",
+     *     type="string",
+     *     required=false,
+     *     description="?limit={NumberOfProductsToDisplay}"
+     * )
+     *
      * @SWG\Tag(name="Products")
      *
      * @Rest\View()
@@ -198,32 +206,26 @@ class ProductController extends AbstractController
      */
     public function listAction(SerializerInterface $serializer, Request $request)
     {
-        $blackfire = new Client();
-
-        $config = (new \Blackfire\Profile\Configuration())->setTitle('Products');
-
+        /*$blackfire = new Client();
+        $config = (new \Blackfire\Profile\Configuration())->setTitle('Products');*/
         try{
-            $probe = $blackfire->createProbe($config);
+
+           // $probe = $blackfire->createProbe($config);
 
             $products = $this->repository->findAll();
             $requestLimit = $request->get('limit');
-
             if (!$requestLimit)
             {
                 $limit = 15;
-
             } else {
                 $limit = $requestLimit;
                 $products = $this->repository->findByLimit($limit);
             }
-
             $page = 1;
             $numberOfPages = (int) ceil(count($products) / $limit);
-
             $collection = new CollectionRepresentation(
                 $products
             );
-
             $paginated = new PaginatedRepresentation(
                 $collection,
                 'products',
@@ -232,9 +234,7 @@ class ProductController extends AbstractController
                 $limit,
                 $numberOfPages
             );
-
             $data = $serializer->serialize($paginated, 'json');
-
             $response = new Response($data);
             $response
                 ->setEtag(md5($response->getContent()))
@@ -244,19 +244,15 @@ class ProductController extends AbstractController
                 ])
                 ->isNotModified($request)
             ;
-
             if (!$products) {
                 $response = new JsonResponse();
                 return $response->setStatusCode(Response::HTTP_NOT_FOUND);
             }
 
-            $profile = $blackfire->endProbe($probe);
-
+           // $blackfire->endProbe($probe);
             return $response;
-
         } catch (\Blackfire\Exception\ExceptionInterface $e) {
-
-            throw new \Exception("BlackFire could not profile data", 400);
+            throw new \Exception("BlackFire could not profile data", Response::HTTP_BAD_REQUEST);
         }
     }
 }
