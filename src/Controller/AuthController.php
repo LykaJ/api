@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Security as SfSecurity;
 class AuthController extends AbstractController
 {
     /**
-     * @Route("api/register", name="user.register")
+     * @Route("api/register", name="user.register", methods={"POST"})
      *
      * @SWG\Response(
      *     response="200",
