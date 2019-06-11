@@ -187,6 +187,14 @@ class ProductController extends AbstractController
      *     description="No product found"
      * )
      *
+     * @SWG\Parameter(
+     *     name="Pagination",
+     *     in="path",
+     *     type="string",
+     *     required=false,
+     *     description="?limit={NumberOfProductsToDisplay}"
+     * )
+     *
      * @SWG\Tag(name="Products")
      *
      * @Rest\View()
@@ -198,10 +206,12 @@ class ProductController extends AbstractController
      */
     public function listAction(SerializerInterface $serializer, Request $request)
     {
-        $blackfire = new Client();
-        $config = (new \Blackfire\Profile\Configuration())->setTitle('Products');
+        /*$blackfire = new Client();
+        $config = (new \Blackfire\Profile\Configuration())->setTitle('Products');*/
         try{
-            $probe = $blackfire->createProbe($config);
+
+           // $probe = $blackfire->createProbe($config);
+
             $products = $this->repository->findAll();
             $requestLimit = $request->get('limit');
             if (!$requestLimit)
@@ -238,10 +248,11 @@ class ProductController extends AbstractController
                 $response = new JsonResponse();
                 return $response->setStatusCode(Response::HTTP_NOT_FOUND);
             }
-            $profile = $blackfire->endProbe($probe);
+
+           // $blackfire->endProbe($probe);
             return $response;
         } catch (\Blackfire\Exception\ExceptionInterface $e) {
-            throw new \Exception("BlackFire could not profile data", 400);
+            throw new \Exception("BlackFire could not profile data", Response::HTTP_BAD_REQUEST);
         }
     }
 }
