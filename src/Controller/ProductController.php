@@ -70,11 +70,9 @@ class ProductController extends AbstractController
         $data = $serializer->serialize($product, 'json');
         $response = new Response($data);
 
-        if (!$product)
-        {
+        if (!$product) {
             return $response
-                ->setStatusCode(Response::HTTP_BAD_REQUEST)
-                ;
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $date = new \DateTime($product->getEditedAt());
@@ -87,12 +85,10 @@ class ProductController extends AbstractController
                 'etag' => $response->getEtag(),
                 'public' => true,
             ])
-            ->isNotModified($request)
-        ;
+            ->isNotModified($request);
 
-        if ($response->isNotModified($request))
-        {
-           return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
+        if ($response->isNotModified($request)) {
+            return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
         }
 
         return $response;
@@ -144,8 +140,7 @@ class ProductController extends AbstractController
         $currentRole = $currentUser->getRole();
 
 
-        if ($currentRole === 'ROLE_ADMIN')
-        {
+        if ($currentRole === 'ROLE_ADMIN') {
             $listener->getViolations($violations);
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($product);
@@ -153,8 +148,7 @@ class ProductController extends AbstractController
 
             $view = View::create();
             $view->setData(['message' => 'The product was successfully created'])
-                ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
-            ;
+                ->setLocation($this->generateUrl('product.show', ['id' => $product->getId()], UrlGeneratorInterface::ABSOLUTE_URL));
 
             return $view;
 
@@ -206,53 +200,57 @@ class ProductController extends AbstractController
      */
     public function listAction(SerializerInterface $serializer, Request $request)
     {
-        /*$blackfire = new Client();
-        $config = (new \Blackfire\Profile\Configuration())->setTitle('Products');*/
-        try{
+        require __DIR__.'/../../vendor/autoload.php';
 
-           // $probe = $blackfire->createProbe($config);
+        // If the header is set
+        if (isset($_SERVER['HTTP_BLACKFIRETRIGGER'])) {
+            // let's create a client
+            $blackfire = new \Blackfire\Client();
+            // then start the probe
+            $probe = $blackfire->createProbe();
 
-            $products = $this->repository->findAll();
-            $requestLimit = $request->get('limit');
-            if (!$requestLimit)
-            {
-                $limit = 15;
-            } else {
-                $limit = $requestLimit;
-                $products = $this->repository->findByLimit($limit);
-            }
-            $page = 1;
-            $numberOfPages = (int) ceil(count($products) / $limit);
-            $collection = new CollectionRepresentation(
-                $products
-            );
-            $paginated = new PaginatedRepresentation(
-                $collection,
-                'products',
-                array(),
-                $page,
-                $limit,
-                $numberOfPages
-            );
-            $data = $serializer->serialize($paginated, 'json');
-            $response = new Response($data);
-            $response
-                ->setEtag(md5($response->getContent()))
-                ->setCache([
-                    'etag' => $response->getEtag(),
-                    'public' => true
-                ])
-                ->isNotModified($request)
-            ;
-            if (!$products) {
-                $response = new JsonResponse();
-                return $response->setStatusCode(Response::HTTP_NOT_FOUND);
-            }
-
-           // $blackfire->endProbe($probe);
-            return $response;
-        } catch (\Blackfire\Exception\ExceptionInterface $e) {
-            throw new \Exception("BlackFire could not profile data", Response::HTTP_BAD_REQUEST);
+            // When runtime shuts down, let's finish the profiling session
+            register_shutdown_function(function () use ($blackfire, $probe) {
+                // See the PHP SDK documentation for using the $profile object
+                $profile = $blackfire->endProbe($probe);
+            });
         }
+
+        $products = $this->repository->findAll();
+        $requestLimit = $request->get('limit');
+        if (!$requestLimit) {
+            $limit = 15;
+        } else {
+            $limit = $requestLimit;
+            $products = $this->repository->findByLimit($limit);
+        }
+        $page = 1;
+        $numberOfPages = (int)ceil(count($products) / $limit);
+        $collection = new CollectionRepresentation(
+            $products
+        );
+        $paginated = new PaginatedRepresentation(
+            $collection,
+            'products',
+            array(),
+            $page,
+            $limit,
+            $numberOfPages
+        );
+        $data = $serializer->serialize($paginated, 'json');
+        $response = new Response($data);
+        $response
+            ->setEtag(md5($response->getContent()))
+            ->setCache([
+                'etag' => $response->getEtag(),
+                'public' => true
+            ])
+            ->isNotModified($request);
+        if (!$products) {
+            $response = new JsonResponse();
+            return $response->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
+
+        return $response;
     }
 }
