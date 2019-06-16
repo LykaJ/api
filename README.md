@@ -46,16 +46,3 @@ To do so:
 
 You can now access all the secured routes of the api.
 
-***
-# Usage #
-
-## How to add a user
-1. Access the following route via the POST method: http://127.0.0.1:8000/register
-1. In the request body, add the information of your new user as such:
-```   
-{
-    "_username": "your_username",
-    "_password": "your_password"
-} 
-```
-3. Send the request.
