@@ -104,8 +104,8 @@ class Product
      */
     public function __construct()
     {
-        $this->createdAt = new \DateTime('now');
-        $this->editedAt = new \DateTime('now');
+        $this->createdAt = new \DateTime();
+        $this->editedAt = new \DateTime();
     }
 
     public function getId(): ?int
