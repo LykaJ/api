@@ -75,7 +75,7 @@ class ProductController extends AbstractController
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
-        $date = new \DateTime($product->getEditedAt());
+        $date = $product->getEditedAt();
 
         $response
             ->setEtag(md5($response->getContent()))
