@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
@@ -143,6 +144,7 @@ class ProductController extends AbstractController
         if ($currentRole === 'ROLE_ADMIN') {
             $listener->getViolations($violations);
             $manager = $this->getDoctrine()->getManager();
+            $product->setCreatedAt(new \DateTime('now'));
             $manager->persist($product);
             $manager->flush();
 
