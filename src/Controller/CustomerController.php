@@ -172,8 +172,9 @@ class CustomerController extends AbstractController
      * @param Customer $customer
      * @return Response
      */
-    public function show(Customer $customer, SerializerInterface $serializer, Request $request, Security $security)
+    public function show(SerializerInterface $serializer, Request $request, Security $security)
     {
+        $customer = $this->repository->find($request->attributes->get('id'));
         $data = $serializer->serialize($customer, 'json');
         $response = new Response($data);
         $date = $customer->getCreatedAt();
@@ -203,6 +204,12 @@ class CustomerController extends AbstractController
         if ($response->isNotModified($request))
         {
             return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
+        }
+
+        if (!isset($customer))
+        {
+            $jsonResponse = new JsonResponse();
+            return $jsonResponse->setData(['message' => 'This customer does not exist'])->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         return $response;
@@ -302,20 +309,27 @@ class CustomerController extends AbstractController
      * @param Customer $customer
      * @return JsonResponse
      */
-    public function delete(Customer $customer)
+    public function delete(Request $request, Security $security)
     {
-        $this->manager->remove($customer);
-        $this->manager->flush();
-
+        $customer = $this->repository->find($request->attributes->get('id'));
         $response = new JsonResponse();
-        $response->setData(['message' => 'The customer was successfully deleted']);
-        $response->setStatusCode(Response::HTTP_OK);
 
-        if (!$customer)
-        {
-            return $response->setData(['data' => 'This customer does not exist'])->setStatusCode(Response::HTTP_BAD_REQUEST);
+        $user = $security->getToken()->getUser();
+
+        if ($customer) {
+            if ($user === $customer->getUser()) {
+                $this->manager->remove($customer);
+                $this->manager->flush();
+
+                $response->setData(['message' => 'The customer was successfully deleted'])->setStatusCode(Response::HTTP_OK);
+
+            } else {
+                $response->setData(['message' => 'You cannot delete this customer'])->setStatusCode(Response::HTTP_FORBIDDEN);
+            }
+        } else {
+            return $response->setData(['message' => 'This customer does not exist'])->setStatusCode(Response::HTTP_BAD_REQUEST);
+
         }
-
         return $response;
     }
 }

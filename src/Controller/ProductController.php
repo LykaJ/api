@@ -66,8 +66,9 @@ class ProductController extends AbstractController
      * @return Response
      * @throws \Exception
      */
-    public function show(Product $product, SerializerInterface $serializer, Request $request)
+    public function show(SerializerInterface $serializer, Request $request)
     {
+        $product = $this->repository->find($request->attributes->get('id'));
         $data = $serializer->serialize($product, 'json');
         $response = new Response($data);
 
