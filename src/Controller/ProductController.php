@@ -55,7 +55,7 @@ class ProductController extends AbstractController
      * )
      *
      * @SWG\Response(
-     *     response="204",
+     *     response="404",
      *     description="This product does not exist"
      * )
      *
@@ -69,31 +69,37 @@ class ProductController extends AbstractController
     public function show(SerializerInterface $serializer, Request $request)
     {
         $product = $this->repository->find($request->attributes->get('id'));
-        $data = $serializer->serialize($product, 'json');
-        $response = new Response($data);
 
-        if (!$product) {
-            return $response
-                ->setStatusCode(Response::HTTP_BAD_REQUEST);
+        $jsonResponse = new JsonResponse();
+
+        if ($product) {
+            $data = $serializer->serialize($product, 'json');
+            $response = new Response($data);
+            $date = $product->getEditedAt();
+
+            if (isset($date)) {
+                $response
+                    ->setEtag(md5($response->getContent()))
+                    ->setSharedMaxAge(3600)
+                    ->setCache([
+                        'last_modified' => $date,
+                        'etag' => $response->getEtag(),
+                        'public' => true,
+                    ])
+                    ->isNotModified($request);
+
+                if ($response->isNotModified($request)) {
+                    return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
+                }
+            } else {
+                return $response;
+            }
+            return $response;
+        } else {
+            return $jsonResponse
+                ->setData(['message' => 'This id is not attached to a product. Please try another id'])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
-
-        $date = $product->getEditedAt();
-
-        $response
-            ->setEtag(md5($response->getContent()))
-            ->setSharedMaxAge(3600)
-            ->setCache([
-                'last_modified' => $date,
-                'etag' => $response->getEtag(),
-                'public' => true,
-            ])
-            ->isNotModified($request);
-
-        if ($response->isNotModified($request)) {
-            return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
-        }
-
-        return $response;
     }
 
     /**
@@ -140,7 +146,6 @@ class ProductController extends AbstractController
     {
         $currentUser = $security->getToken()->getUser();
         $currentRole = $currentUser->getRole();
-
 
         if ($currentRole === 'ROLE_ADMIN') {
             $listener->getViolations($violations);

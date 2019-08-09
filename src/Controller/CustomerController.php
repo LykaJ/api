@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -88,8 +89,7 @@ class CustomerController extends AbstractController
 
         $requestLimit = $request->get('limit');
 
-        if (!$requestLimit)
-        {
+        if (!$requestLimit) {
             $limit = 15;
 
         } else {
@@ -98,7 +98,7 @@ class CustomerController extends AbstractController
         }
 
         $page = 1;
-        $numberOfPages = (int) ceil(count($customers) / $limit);
+        $numberOfPages = (int)ceil(count($customers) / $limit);
 
         $collection = new CollectionRepresentation(
             $customers
@@ -107,7 +107,7 @@ class CustomerController extends AbstractController
         $paginated = new PaginatedRepresentation(
             $collection,
             'customers',
-            array (),
+            array(),
             $page,
             $limit,
             $numberOfPages
@@ -122,8 +122,7 @@ class CustomerController extends AbstractController
                 'etag' => $response->getEtag(),
                 'public' => true
             ])
-            ->isNotModified($request)
-        ;
+            ->isNotModified($request);
 
         if (!$customers) {
             $jsonResponse = new JsonResponse();
@@ -175,44 +174,44 @@ class CustomerController extends AbstractController
     public function show(SerializerInterface $serializer, Request $request, Security $security)
     {
         $customer = $this->repository->find($request->attributes->get('id'));
-        $data = $serializer->serialize($customer, 'json');
-        $response = new Response($data);
-        $date = $customer->getCreatedAt();
+
+        $jsonResponse = new JsonResponse();
         $currentUser = $security->getToken()->getUser();
-        $user = $customer->getUser();
 
-        if ($currentUser === $user)
-        {
-            $response
-                ->setEtag(md5($response->getContent()))
-                ->setCache([
-                    'last_modified' => $date,
-                    'etag' => $response->getEtag(),
-                    'public' => true,
-                ])
-                ->isNotModified($request)
-            ;
+        if ($customer) {
+            $data = $serializer->serialize($customer, 'json');
+            $response = new Response($data);
 
+            $user = $customer->getUser();
+            if ($currentUser === $user) {
+                $date = $customer->getCreatedAt();
+
+                if (isset($date)) {
+                    $response
+                        ->setEtag(md5($response->getContent()))
+                        ->setCache([
+                            'last_modified' => $date,
+                            'etag' => $response->getEtag(),
+                            'public' => true,
+                        ])
+                        ->isNotModified($request);
+
+                    if ($response->isNotModified($request)) {
+                        return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
+                    }
+                } else {
+                    return $jsonResponse->setData(['message' => 'This customer does not exist']);
+                }
+
+            } else {
+                return $jsonResponse
+                    ->setData(['message' => 'You do not have access to this data.'])
+                    ->setStatusCode(Response::HTTP_FORBIDDEN);
+            }
+            return $response;
         } else {
-            $jsonResponse = new JsonResponse();
-            return $jsonResponse
-                ->setData(['message' => 'You do not have access to this data.'])
-                ->setStatusCode(Response::HTTP_FORBIDDEN)
-                ;
+            return $jsonResponse->setData(['message' => 'This id is not attached to a customer. Please try another id'])->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
-
-        if ($response->isNotModified($request))
-        {
-            return $response->setStatusCode(Response::HTTP_NOT_MODIFIED);
-        }
-
-        if (!isset($customer))
-        {
-            $jsonResponse = new JsonResponse();
-            return $jsonResponse->setData(['message' => 'This customer does not exist'])->setStatusCode(Response::HTTP_BAD_REQUEST);
-        }
-
-        return $response;
     }
 
     /**
@@ -268,8 +267,7 @@ class CustomerController extends AbstractController
 
         $view = View::create();
         $view->setData([$customer, 'The customer was successfully created'])
-            ->setLocation($this->generateUrl('customer.show', ['id' => $customer->getId()], UrlGeneratorInterface::ABSOLUTE_URL))
-        ;
+            ->setLocation($this->generateUrl('customer.show', ['id' => $customer->getId()], UrlGeneratorInterface::ABSOLUTE_URL));
 
         return $view;
     }
