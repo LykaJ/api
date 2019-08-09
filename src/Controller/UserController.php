@@ -66,8 +66,10 @@ class UserController extends AbstractController
      * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      *
      */
-    public function show(User $user, Security $security)
+    public function show(Security $security, Request $request)
     {
+        $user = $this->repository->find($request->attributes->get('id'));
+
         $currentUser = $security->getToken()->getUser();
         $currentRole = $currentUser->getRole();
 
@@ -181,7 +183,6 @@ class UserController extends AbstractController
             return $response;
         } else {
             $jsonResponse = new JsonResponse();
-
             return $jsonResponse->setData(['message' => 'Access denied'])->setStatusCode(Response::HTTP_FORBIDDEN);
         }
 
